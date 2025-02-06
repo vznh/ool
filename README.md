@@ -16,3 +16,6 @@ Unit test conventions should be same naming conventions, but with `test_*` and `
 
 Integration tests are a bit more complex, where we continue with the `test_` prefix, but instead of `*_type`, we'll be looking for `*_{expected_behavior}`. 
 `test_github_full_repo_refresher_is_not_empty` where `test_` is the prefix, and `_is_not_empty` is the expected behavior that the test should be looking for. 
+
+## Committing
+You'll additionally find that when you commit, there will be a slight delay. There is a [Husky](https://typicode.github.io/husky/) workflow in-place that formats, lints, and checks your file for any errors before committing in order to prevent a breaking change.
