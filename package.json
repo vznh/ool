@@ -7,7 +7,8 @@
     "format:app": "cd app && bun x biome format",
     "format:back": "cd back && cargo fmt",
     "affected:lint": "git diff --name-only --cached | grep 'app/' | xargs bun x biome lint",
-    "format:check": "git diff --name-only --diff-filter=ACM | xargs bun x biome format --write"
+    "format:check": "git diff --name-only --diff-filter=ACM | xargs bun x biome format --write",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
