@@ -1,2 +1,6 @@
 # Rust build files
 back/target*
+
+# Extraneous files/pkgs
+node_modules/
+package-lock.json

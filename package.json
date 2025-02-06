@@ -1,0 +1,18 @@
+{
+  "name": "ool",
+  "version": "1.0.0",
+  "description": "Doubly-supported by NeXTJS and Rust. Should just be testing GitHub REST API using various methods.",
+  "scripts": {
+    "format": "npm run format:app && npm run format:back",
+    "format:app": "cd app && bun x biome format",
+    "format:back": "cd back && cargo fmt",
+    "affected:lint": "git diff --name-only --cached | grep 'app/' | xargs bun x biome lint",
+    "format:check": "git diff --name-only --diff-filter=ACM | xargs bun x biome format --write"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
