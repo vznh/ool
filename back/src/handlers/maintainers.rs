@@ -21,6 +21,7 @@ async fn get_recent_commits(repository_name: &str, username: &str) -> Result<(),
     let date = commit["commit"]["author"]["date"].as_str().unwrap_or("Unknown date");
     let message = commit["commit"]["message"].as_str().unwrap_or("No message");
     println!("Date: {} | Message: {}", date, message);
+    println!("--------------------------------------------");
   }
 
   Ok(())
