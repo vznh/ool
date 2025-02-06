@@ -1,2 +1,5 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/h"
+# Run linting on committed files and stop commit if errors are found
+npm run affected:lint --base=main --head=HEAD --parallel=2 --quiet || exit 1
+
+# Check formatting on modified and uncommitted files
+npm run format:check --uncommitted || exit 1
