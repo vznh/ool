@@ -1,4 +1,5 @@
 // main.rs
+mod handlers;
 mod server;
 
 #[tokio::main]
