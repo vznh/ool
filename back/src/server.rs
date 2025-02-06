@@ -5,7 +5,11 @@ use std::net::SocketAddr;
 // use reqwest;
 // use handlers::base::github_full_repo_refresher;
 
-async fn github_full_repo_refresher() -> impl IntoResponse {}
+async fn github_full_repo_refresher() -> impl IntoResponse {
+  
+
+
+}
 async fn test_func() -> impl IntoResponse {
   Json(json!({ "message": "Rust server is running!" }));
 }
