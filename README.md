@@ -18,4 +18,5 @@ Integration tests are a bit more complex, where we continue with the `test_` pre
 `test_github_full_repo_refresher_is_not_empty` where `test_` is the prefix, and `_is_not_empty` is the expected behavior that the test should be looking for. 
 
 ## Committing
+Run `npm run format` in the root directory if you've made changes to both directories. Else, `bun x biome format --write` or `cargo fmt` will work just perfectly.
 You'll additionally find that when you commit, there will be a slight delay. There is a [Husky](https://typicode.github.io/husky/) workflow in-place that formats, lints, and checks your file for any errors before committing in order to prevent a breaking change.
