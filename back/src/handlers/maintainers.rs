@@ -6,6 +6,18 @@ use serde_json::Value;
 use std::error::Error;
 use tokio;
 
+// Signs of an active repository
+/*
+ * Frequent commit activity
+ * Responds to issues
+ * High rate of merged PRs
+ * Timely PR reviews
+ * Balance of opened/closed issues
+ * Comments on issues & prs
+ * Documentation is maintained
+ * ... all which indicate there is consistent activity over-time.
+ */
+
 async fn get_recent_commits(repository_name: &str, username: &str) -> Result<(), Box<dyn Error>> {
   let url = format!("https://api.github.com/repos/{}/{}/commits", repository_name, username);
   // follow-up: so we can query repos with ...url/repos/<repo_name>/<user>/commits for a specific repository
@@ -30,9 +42,8 @@ async fn get_recent_commits(repository_name: &str, username: &str) -> Result<(),
 pub async fn get_recent_commits_handler(
   Path((repository_name, username)): Path<(String, String)>,
 ) -> impl IntoResponse {
-  // do smt with results here..
   match get_recent_commits(repository_name.as_str(), username.as_str()).await {
-    Ok(_) => (axum::http::StatusCode::OK, "Successfully fetched commits").into_response(),
+    Ok(_) => (axum::http::StatusCode::OK, "Successfully fetched commits.").into_response(),
     Err(e) => (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
   }
 }
