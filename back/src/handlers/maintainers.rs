@@ -1,8 +1,10 @@
 // maintainers.rs
+use crate::models::types::PullRequestStats;
 use axum::extract::Path;
-use axum::response::IntoResponse;
+use axum::response::{IntoResponse, Json};
+use chrono::{DateTime, Duration, Utc};
 use reqwest;
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::error::Error;
 use tokio;
 
@@ -36,6 +38,7 @@ async fn get_recent_commits(repository_name: &str, username: &str) -> Result<(),
     println!("--------------------------------------------");
   }
 
+  // we should have some logic determining whether this can be determined as an active..
   Ok(())
 }
 
@@ -48,10 +51,100 @@ pub async fn get_recent_commits_handler(
   }
 }
 
+async fn get_freq_of_merged_pull_requests(
+  repository_name: &str,
+  owner: &str,
+) -> Result<PullRequestStats, Box<dyn Error>> {
+  let url = format!(
+    "https://api.github.com/repos/{}/{}/pulls?state=all&per_page=100",
+    owner, repository_name
+  );
+
+  let client = reqwest::Client::new();
+  let res = client.get(&url).header("User-Agent", "ool").send().await?.json::<Value>().await?;
+
+  let empty_vec = vec![];
+  let pulls = res.as_array().unwrap_or(&empty_vec);
+
+  let mut total_prs = 0;
+  let mut merged_prs = 0;
+  let mut recent_prs = 0;
+  let mut merge_times = vec![];
+  let thirty_days_ago = Utc::now() - Duration::days(30);
+
+  for pr in pulls {
+    total_prs += 1;
+    let created_at = pr["created_at"].as_str().unwrap_or("");
+    let merged_at = pr["merged_at"].as_str().unwrap_or("");
+
+    if let Ok(created_date) = created_at.parse::<DateTime<Utc>>() {
+      if created_date > thirty_days_ago {
+        recent_prs += 1;
+      }
+    }
+
+    if !merged_at.is_empty() {
+      merged_prs += 1;
+      if let (Ok(created_date), Ok(merged_date)) =
+        (created_at.parse::<DateTime<Utc>>(), merged_at.parse::<DateTime<Utc>>())
+      {
+        let merge_time = (merged_date - created_date).num_days();
+        merge_times.push(merge_time as f64);
+      }
+    }
+  }
+
+  let merge_rate = if total_prs > 0 { merged_prs as f64 / total_prs as f64 } else { 0.0 };
+
+  let avg_merge_time = if !merge_times.is_empty() {
+    merge_times.iter().sum::<f64>() / merge_times.len() as f64
+  } else {
+    f64::MAX
+  };
+
+  let pr_frequency = recent_prs as f64 / 30.0;
+  let is_active = merge_rate > 0.6 && pr_frequency > 1.0 && avg_merge_time < 7.0;
+
+  Ok(PullRequestStats {
+    repository: repository_name.to_string(),
+    merge_rate,
+    pr_frequency,
+    avg_merge_time,
+    is_active,
+  })
+}
+
+pub async fn get_freq_of_merged_pull_requests_handler(
+  Path((repository_name, owner)): Path<(String, String)>,
+) -> impl IntoResponse {
+  match get_freq_of_merged_pull_requests(repository_name.as_str(), owner.as_str()).await {
+    Ok(stats) => (
+      axum::http::StatusCode::OK,
+      Json(json!({
+          "repository": stats.repository,
+          "merge_rate": stats.merge_rate,
+          "pr_frequency": stats.pr_frequency,
+          "avg_merge_time": stats.avg_merge_time,
+          "is_active": stats.is_active
+      })),
+    )
+      .into_response(),
+    Err(e) => (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+  }
+}
+
 #[tokio::test]
 async fn test_get_recent_commits_success() {
   match get_recent_commits("rust-lang", "rust").await {
     Ok(_) => println!("✅ Successfully fetched commits."),
+    Err(err) => println!("😭 Error arose: {}", err),
+  }
+}
+
+#[tokio::test]
+async fn test_get_freq_of_merged_pull_requests_success() {
+  match get_freq_of_merged_pull_requests("rust-lang", "rust").await {
+    Ok(_) => println!("✅ Successfully analyzed repository activity."),
     Err(err) => println!("😭 Error arose: {}", err),
   }
 }
