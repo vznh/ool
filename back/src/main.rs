@@ -1,5 +1,6 @@
 // main.rs
 mod handlers;
+mod models;
 mod server;
 
 #[tokio::main]
