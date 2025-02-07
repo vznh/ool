@@ -137,6 +137,7 @@ pub async fn get_freq_of_merged_pull_requests_handler(
 async fn test_get_recent_commits_success() {
   match get_recent_commits("rust-lang", "rust").await {
     Ok(_) => println!("✅ Successfully fetched commits."),
+
     Err(err) => println!("😭 Error arose: {}", err),
   }
 }
