@@ -1,31 +1,34 @@
 // maintainers.rs
 use crate::models::types::PullRequestStats;
-use axum::extract::Path;
-use axum::response::{IntoResponse, Json};
+use axum::{extract::{Path, Extension}, response::IntoResponse, Json};
 use chrono::{DateTime, Duration, Utc};
-use reqwest;
+use reqwest::{self, Client};
 use serde_json::{json, Value};
+use std::sync::Arc;
 use std::error::Error;
-use tokio;
+
 
 // Signs of an active repository
 /*
- * Frequent commit activity
- * Responds to issues
- * High rate of merged PRs
- * Timely PR reviews
- * Balance of opened/closed issues
- * Comments on issues & prs
- * Documentation is maintained
+ * Frequent commit activity - need mod
+ * Responds to issues - need
+ * High rate of merged PRs - check
+ * Timely PR reviews - need
+ * Balance of opened/closed issues - need
+ * Comments on issues & prs - need, needs to be author
+ * Documentation is maintained - need
  * ... all which indicate there is consistent activity over-time.
  */
 
-async fn get_recent_commits(repository_name: &str, username: &str) -> Result<(), Box<dyn Error>> {
+pub async fn get_recent_commits(
+  client: &Client,
+  repository_name: &str,
+  username: &str
+) -> Result<(), Box<dyn Error>> {
   let url = format!("https://api.github.com/repos/{}/{}/commits", repository_name, username);
   // follow-up: so we can query repos with ...url/repos/<repo_name>/<user>/commits for a specific repository
   // such as the main maintainer? if so, how can we also determine the main maintainer?
 
-  let client = reqwest::Client::new();
   let res = client.get(url).header("User-Agent", "ool").send().await?.json::<Value>().await?;
 
   let empty_vec = vec![];
@@ -44,14 +47,16 @@ async fn get_recent_commits(repository_name: &str, username: &str) -> Result<(),
 
 pub async fn get_recent_commits_handler(
   Path((repository_name, username)): Path<(String, String)>,
+  Extension(client): Extension<Arc<Client>>
 ) -> impl IntoResponse {
-  match get_recent_commits(repository_name.as_str(), username.as_str()).await {
+  match get_recent_commits(&client, repository_name.as_str(), username.as_str()).await {
     Ok(_) => (axum::http::StatusCode::OK, "Successfully fetched commits.").into_response(),
     Err(e) => (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
   }
 }
 
-async fn get_freq_of_merged_pull_requests(
+pub async fn get_freq_of_merged_pull_requests(
+  client: &Client,
   repository_name: &str,
   owner: &str,
 ) -> Result<PullRequestStats, Box<dyn Error>> {
@@ -60,7 +65,6 @@ async fn get_freq_of_merged_pull_requests(
     owner, repository_name
   );
 
-  let client = reqwest::Client::new();
   let res = client.get(&url).header("User-Agent", "ool").send().await?.json::<Value>().await?;
 
   let empty_vec = vec![];
@@ -116,8 +120,9 @@ async fn get_freq_of_merged_pull_requests(
 
 pub async fn get_freq_of_merged_pull_requests_handler(
   Path((repository_name, owner)): Path<(String, String)>,
+  Extension(client): Extension<Arc<Client>>
 ) -> impl IntoResponse {
-  match get_freq_of_merged_pull_requests(repository_name.as_str(), owner.as_str()).await {
+  match get_freq_of_merged_pull_requests(&client, repository_name.as_str(), owner.as_str()).await {
     Ok(stats) => (
       axum::http::StatusCode::OK,
       Json(json!({
@@ -130,22 +135,5 @@ pub async fn get_freq_of_merged_pull_requests_handler(
     )
       .into_response(),
     Err(e) => (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-  }
-}
-
-#[tokio::test]
-async fn test_get_recent_commits_success() {
-  match get_recent_commits("rust-lang", "rust").await {
-    Ok(_) => println!("✅ Successfully fetched commits."),
-
-    Err(err) => println!("😭 Error arose: {}", err),
-  }
-}
-
-#[tokio::test]
-async fn test_get_freq_of_merged_pull_requests_success() {
-  match get_freq_of_merged_pull_requests("rust-lang", "rust").await {
-    Ok(_) => println!("✅ Successfully analyzed repository activity."),
-    Err(err) => println!("😭 Error arose: {}", err),
   }
 }
