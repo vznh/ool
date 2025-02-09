@@ -10,7 +10,13 @@
  * Documentation is maintained - need
  * ... all which indicate there is consistent activity over-time.
  */
+use crate::models::types::PiaResponse;
+use axum::response::IntoResponse;
 
-use models::PiaResponse;
+pub async fn pia() -> Option<PiaResponse> {
+  unimplemented!();
+}
 
-async fn pia() -> PiaResponse {}
+pub async fn pia_handler() -> impl IntoResponse {
+  unimplemented!();
+}
