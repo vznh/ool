@@ -13,6 +13,14 @@ pub struct PiaResponse {
 }
 
 #[derive(Serialize)]
+pub struct GenericResponse {
+  pub success: bool,
+  pub error: Option<String>,
+
+  pub trait_ret: bool,
+}
+
+#[derive(Serialize)]
 pub struct PullRequestStats {
   pub repository: String,
   pub merge_rate: f64,
