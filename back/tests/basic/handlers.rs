@@ -1,5 +1,5 @@
 // basic/handlers.rs
-use back::handlers::{toprepos::*, maintainers::*};
+use back::handlers::{maintainers::*, toprepos::*};
 use reqwest::Client;
 
 pub mod tests {
