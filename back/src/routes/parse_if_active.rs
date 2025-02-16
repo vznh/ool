@@ -2,13 +2,13 @@ use crate::handlers::maintainers::{get_freq_of_merged_pull_requests, has_readme_
 // parse_if_active.rs
 // Checks if a repository is active using these guidelines:
 /*
- * Frequent commit activity - need mod
- * Responds to issues - need
- * High rate of merged PRs - check
- * Timely PR reviews - need
- * Balance of opened/closed issues - need
- * Comments on issues & prs - need, needs to be author
- * Documentation is maintained - need
+ * Frequent commit activity
+ * Responds to issues
+ * High rate of merged PRs
+ * Timely PR reviews
+ * Balance of opened/closed issues
+ * Comments on issues & prs
+ * Documentation is maintained
  * ... all which indicate there is consistent activity over-time.
  */
 use crate::{handlers::maintainers::get_recent_commits, models::types::PiaResponse};
