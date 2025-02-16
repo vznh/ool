@@ -8,7 +8,7 @@ use std::sync::Arc;
 async fn github_full_repo_refresher() -> impl IntoResponse {}
 
 pub async fn serve() {
-  let client = Arc::new(Client::new());
+
   let app = Router::new()
     .route("/g", get(github_full_repo_refresher))
     .route("/pia/:repository_name/:owner_username", get(pia_handler))
