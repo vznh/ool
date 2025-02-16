@@ -6,18 +6,6 @@ use serde_json::Value;
 use std::collections::HashSet;
 use std::error::Error;
 
-// Signs of an active repository
-/*
- * Frequent commit activity - done
- * Responds to issues - need
- * High rate of merged PRs - done
- * Timely PR reviews - need
- * Balance of opened/closed issues - need
- * Comments on issues & prs - need, needs to be author
- * Documentation is maintained - needs mod (does it have updates?)
- * ... all which indicate there is consistent activity over-time.
- */
-
 pub async fn get_recent_commits(
   client: &Client,
   repository_name: &str,

@@ -16,7 +16,6 @@ pub struct PiaResponse {
 pub struct GenericResponse {
   pub success: bool,
   pub error: Option<String>,
-
   pub trait_ret: bool,
 }
 
