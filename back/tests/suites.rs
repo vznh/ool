@@ -1,9 +1,8 @@
 // tests/suites.rs
 mod basic;
 use basic::handlers::tests::{
-  test_get_freq_of_merged_pull_requests_success,
-  test_get_recent_commits_success,
-  test_get_top_repos_success
+  test_get_freq_of_merged_pull_requests_success, test_get_recent_commits_success,
+  test_get_top_repos_success,
 };
 
 async fn test_all_handlers() {
@@ -26,5 +25,4 @@ async fn main() {
   println!("* Now beginning handlers test suite...");
   test_all_handlers().await;
   println!("* Successfully ran handlers test suite.");
-
 }

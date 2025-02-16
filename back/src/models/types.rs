@@ -2,6 +2,24 @@
 use serde::Serialize;
 
 #[derive(Serialize)]
+pub struct PiaResponse {
+  // generic
+  pub success: bool,
+  pub error: Option<String>,
+
+  // should also include specificities?
+  pub is_active: bool,
+  // more? can't think of any rn
+}
+
+#[derive(Serialize)]
+pub struct GenericResponse {
+  pub success: bool,
+  pub error: Option<String>,
+  pub trait_ret: bool,
+}
+
+#[derive(Serialize)]
 pub struct PullRequestStats {
   pub repository: String,
   pub merge_rate: f64,
