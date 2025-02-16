@@ -68,16 +68,3 @@ pub async fn pia(
   Ok(PiaResponse { success: true, error: None, is_active: ct >= 8 })
 }
 
-pub async fn pia_handler(
-  Path((repository_name, username)): Path<(String, String)>,
-  Extension(client): Extension<Arc<Client>>,
-) -> impl IntoResponse {
-  match pia(client, repository_name.as_str(), username.as_str()).await {
-    Ok(_) => {
-      unimplemented!()
-    }
-    Err(_) => {
-      unimplemented!()
-    }
-  }
-}
