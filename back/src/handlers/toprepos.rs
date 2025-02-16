@@ -1,7 +1,6 @@
 // toprepos.rs
 use axum::response::IntoResponse;
 use reqwest;
-use serde_json::Value;
 use std::error::Error;
 
 pub async fn get_top_repos() -> Result<(), Box<dyn Error>> {
@@ -9,28 +8,46 @@ pub async fn get_top_repos() -> Result<(), Box<dyn Error>> {
 
   let client = reqwest::Client::new();
   let res = client
-    .get(url)
-    .header("User-Agent", "ool") // Github Requires
-    .send()
-    .await?
-    .json::<Value>()
-    .await?;
+      .get(url)
+      .header("User-Agent", "ool") // GitHub requires a User-Agent header
+      .send()
+      .await?
+      .json::<serde_json::Value>()
+      .await?;
 
-  let empty_vec = vec![];
-  let repos = res["items"].as_array().unwrap_or(&empty_vec);
+  if let Some(repos) = res.get("items").and_then(|v| v.as_array()) {
+      for repo in repos.iter().take(10) {
+          let name = repo
+              .get("name")
+              .and_then(|v| v.as_str())
+              .unwrap_or("Unknown repo");
 
-  for repo in repos.iter().take(10) {
-    let name = repo["name"].as_str().unwrap_or("Unknown repo");
-    let owner = repo["owner"]["login"].as_str().unwrap_or("Unknown owner");
-    let stars = repo["stargazers_count"].as_i64().unwrap_or(0);
-    let url = repo["html_url"].as_str().unwrap_or("No URL");
+          let owner = repo
+              .get("owner")
+              .and_then(|v| v.get("login"))
+              .and_then(|v| v.as_str())
+              .unwrap_or("Unknown owner");
 
-    println!("Repo: {} | Owner: {} | Stars: {} | URL: {}", name, owner, stars, url);
-    println!("--------------------------------------------");
+          let stars = repo
+              .get("stargazers_count")
+              .and_then(|v| v.as_i64())
+              .unwrap_or(0);
+
+          let url = repo
+              .get("html_url")
+              .and_then(|v| v.as_str())
+              .unwrap_or("No URL");
+
+          println!("Repo: {} | Owner: {} | Stars: {} | URL: {}", name, owner, stars, url);
+          println!("--------------------------------------------");
+      }
+  } else {
+      println!("No repositories found.");
   }
 
   Ok(())
 }
+
 
 pub async fn get_top_repos_handler() -> impl IntoResponse {
   match get_top_repos().await {
