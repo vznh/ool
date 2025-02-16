@@ -42,7 +42,7 @@ pub async fn get_top_repos() -> Result<(), Box<dyn Error>> {
           println!("--------------------------------------------");
       }
   } else {
-      println!("No repositories found.");
+      println!("No repositories found. Please retry.");
   }
 
   Ok(())
